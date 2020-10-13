@@ -1,7 +1,7 @@
 import os
 import discord
 
-TOKEN = os.environ["lberfd_token"]
+TOKEN = os.environ["sandc_token"]
 
 client = discord.Client()
 from transformers import pipeline
