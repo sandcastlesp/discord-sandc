@@ -13,7 +13,6 @@ the_seed = []
 async def on_message(message):
     # we do not want the bot to reply to itself
     meta = message.content.startswith('T ')
-    print(repr(message.author))
     if message.author == client.user:
         return
     if not meta:
@@ -30,13 +29,13 @@ async def on_message(message):
         maxlen = 700
         if len(m2) > maxlen:
             m2 = m2[-maxlen:]
-        print("Y:", m2)
-        c = g(m2, max_length=100)
+            print("KLIPPA AV:", m2)
+        c = g(m2, max_length=120)
 
         te = c[0]['generated_text']
         tote = te.replace('\xa0', '\n')
         tote = tote.replace(' \n', '\n')
-        msg = 'R '+tote
+        msg = tote
         await message.channel.send(msg)
 
 @client.event
