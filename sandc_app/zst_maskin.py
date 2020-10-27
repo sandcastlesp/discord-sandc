@@ -1,6 +1,7 @@
 from collections import defaultdict
 
-from transformers import pipeline
+from transformers import pipeline, AutoTokenizer, AutoModel
+from transformers import GPT2LMHeadModel
 
 class Rum:
     def __init__(r, kontext = 20):
@@ -12,17 +13,30 @@ class Rum:
         if len(r.msg_hist) > r.kontext:
             r.msg_hist = r.msg_hist[1:]
 
+class ModellBygge:
+    def __init__(m, name):
+        modclass = GPT2LMHeadModel
+        m.tokenizer = AutoTokenizer.from_pretrained(name)
+        m.model = modclass.from_pretrained(name)
+
+    def skrik(m, input, n=1):
+        datain = m.tokenizer.encode(input, return_tensors='pt')
+        daout = m.model.generate(input_ids=datain, max_length=len(datain[0])+20)
+        text = m.tokenizer.decode(daout[0])
+        return text
+
 class ZstMaskin:
     def __init__(z):
         z.rumkatalog = defaultdict(Rum)
         z.globalrum = Rum(kontext=50)
-        z.g = pipeline('text-generation')
+
+        z.m = ModellBygge("gpt2-medium")
 
     def recv_message(z, rum, nick, msg):
         z.rumkatalog[rum].putta(nick, msg)
         z.globalrum.putta(rum + "/" + nick, msg)
 
-    def signalera(self, rum, nick=None, prefix="", generalize=False):
+    def signalera(z, rum, nick=None, prefix="", generalize=False):
         if generalize:
             nick = rum + "/" + nick
             rum = None
@@ -31,8 +45,7 @@ class ZstMaskin:
         if nick:
             pretext = pretext + '{}: '.format(nick)
         pretext = pretext + prefix
-        c = z.g(pretext, max_length=120)
-        te = c[0]['generated_text']
+        te = z.m.skrik(pretext)
         tote = te.replace('\xa0', '\n')
         tote = tote.replace(' \n', '\n')
         print(tote)
@@ -44,5 +57,4 @@ if __name__ == '__main__':
     z.recv_message("general", "bfredl", "knuffas inte")
     print(z.signalera("general", "tinkzorg"))
     print(z.signalera("general", "tinkzorg", generalize=True))
-
 
