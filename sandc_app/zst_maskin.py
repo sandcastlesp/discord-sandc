@@ -31,7 +31,7 @@ class ZstMaskin:
         z.rumkatalog = defaultdict(Rum)
         z.globalrum = Rum(kontext=50)
 
-        z.m = ModellBygge("gpt2-medium")
+        z.m = ModellBygge("gpt2-large")
 
     def recv_message(z, rum, nick, msg):
         z.rumkatalog[rum].putta(nick, msg)
