@@ -20,10 +20,11 @@ class ModellBygge:
         m.model = modclass.from_pretrained(name)
 
     def skrik(m, input, n=1):
+        plen = len(input)
         datain = m.tokenizer.encode(input, return_tensors='pt')
         daout = m.model.generate(input_ids=datain, max_length=len(datain[0])+20)
         text = m.tokenizer.decode(daout[0])
-        return text
+        return text[plen:]
 
 class ZstMaskin:
     def __init__(z):
