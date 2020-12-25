@@ -23,7 +23,7 @@ class ModellBygge:
         plen = len(input)
 
         datain = m.tokenizer.encode(input, return_tensors='pt')
-        daout = m.model.generate(input_ids=datain, max_length=len(datain[0])+20)
+        daout = m.model.generate(input_ids=datain, max_length=len(datain[0])+30, top_p=0.9, repetition_penalty=1.3)
         text = m.tokenizer.decode(daout[0])
         return text[plen:]
 
