@@ -68,7 +68,10 @@ async def on_ready():
             print(c)
             if not isinstance(c, discord.TextChannel):
                 continue
+            messages = []
             async for m in c.history(limit=50):
+                messages.append(m)
+            for m in messages[::-1]:
                 if m.author == client.user:
                     print("CENCUR!!!")
                 else:
