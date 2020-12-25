@@ -10,11 +10,14 @@ client = discord.Client()
 from .zst_maskin import ZstMaskin
 
 maskin = ZstMaskin()
+seen_chans = []
+allowed_chans = []
 
-@client.event
-async def on_message(message):
-    # we do not want the bot to reply to itself
-    content = message.content
+def desc_chan(msg):
+    return str(msg.channel)
+
+def handle_message(msg):
+    content = msg.content
     meta = False
     prefix = ""
     if content.strip() == "T":
@@ -22,20 +25,29 @@ async def on_message(message):
     elif content.startswith('T '):
         meta = True
         prefix = content[2:]
-    chan = str(message.channel)
-    print(chan)
+    chan = desc_chan(msg)
     if not meta:
-        maskin.recv_message(chan, message.author.name, content)
+        maskin.recv_message(desc_chan(msg), msg.author.name, msg.content)
+    prefix = content[2:] if meta else ""
 
+    return meta, chan, prefix
+
+
+@client.event
+async def on_message(msg):
+    if msg.author == client.user:
+        print("FLAMS!!!")
+        return
+    meta, chan, prefix = handle_message(msg)
+    # we do not want the bot to reply to itself
     if meta or brus:
         #TODO: auto : på context
-        prefix = message.content[2:] if meta else ""
-        context, msg = maskin.signalera(chan, prefix=prefix)
+        context, reply = maskin.signalera(chan, prefix=prefix)
 
         print("\n===============")
-        print(context + "@@" + msg)
+        print(context + "@@" + reply)
         if meta:
-            await message.channel.send(prefix + msg)
+            await msg.channel.send(prefix + reply)
         else:
             pass
             #print('\x16\x63')
@@ -48,5 +60,19 @@ async def on_ready():
     print(client.user.name)
     print(client.user.id)
     print('------')
+    
+    print(client.guilds)
+    for g in client.guilds:
+        print(g)
+        for c in g.channels:
+            print(c)
+            if not isinstance(c, discord.TextChannel):
+                continue
+            async for m in c.history(limit=50):
+                if m.author == client.user:
+                    print("CENCUR!!!")
+                else:
+                    print(m)
+                    handle_message(m)
 
 client.run(TOKEN)

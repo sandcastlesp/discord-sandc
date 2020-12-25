@@ -21,6 +21,7 @@ class ModellBygge:
 
     def skrik(m, input, n=1):
         plen = len(input)
+
         datain = m.tokenizer.encode(input, return_tensors='pt')
         daout = m.model.generate(input_ids=datain, max_length=len(datain[0])+20)
         text = m.tokenizer.decode(daout[0])
@@ -31,7 +32,7 @@ class ZstMaskin:
         z.rumkatalog = defaultdict(Rum)
         z.globalrum = Rum(kontext=50)
 
-        z.m = ModellBygge("gpt2-large")
+        z.m = ModellBygge("gpt2")
 
     def recv_message(z, rum, nick, msg):
         z.rumkatalog[rum].putta(nick, msg)
