@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from transformers import pipeline, AutoTokenizer, AutoModel
+from transformers import pipeline, AutoTokenizer, AutoModelForCausalLM
 from transformers import GPT2LMHeadModel
 
 class Rum:
@@ -14,16 +14,16 @@ class Rum:
             r.msg_hist = r.msg_hist[1:]
 
 class ModellBygge:
-    def __init__(m, name):
-        modclass = GPT2LMHeadModel
+    def __init__(m, name, modclass=AutoModelForCausalLM):
         m.tokenizer = AutoTokenizer.from_pretrained(name)
         m.model = modclass.from_pretrained(name)
 
     def skrik(m, input, n=1):
+        print("le input", repr(input))
         plen = len(input)
 
         datain = m.tokenizer.encode(input, return_tensors='pt')
-        daout = m.model.generate(input_ids=datain, max_length=len(datain[0])+30, top_p=0.9, repetition_penalty=1.3)
+        daout = m.model.generate(input_ids=datain, max_length=len(datain[0])+100, top_p=0.9, repetition_penalty=1.9, do_sample=True)
         text = m.tokenizer.decode(daout[0])
         return text[plen:]
 
@@ -32,7 +32,8 @@ class ZstMaskin:
         z.rumkatalog = defaultdict(Rum)
         z.globalrum = Rum(kontext=50)
 
-        z.m = ModellBygge("gpt2-xl")
+        #z.m = ModellBygge("gpt2-xl", modclass = GPT2LMHeadModel)
+        z.m = ModellBygge("EleutherAI/gpt-neo-125M")
 
     def recv_message(z, rum, nick, msg):
         z.rumkatalog[rum].putta(nick, msg)
